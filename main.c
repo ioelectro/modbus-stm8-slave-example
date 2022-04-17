@@ -53,7 +53,7 @@ void main(void)
 
   // Test Data
   mb_table_write(TBALE_Input_Registers,0,123);
-	mb_table_write(TABLE_Holding_Registers,0,456);
+  mb_table_write(TABLE_Holding_Registers,0,456);
 
   enableInterrupts();
 
