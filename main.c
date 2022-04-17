@@ -2,6 +2,7 @@
 #include "stm8s_conf.h"
 #include "main.h"
 #include "mb.h"
+#include "mb-table.h"
 
 void TimOutTimer_OVF()
 {
@@ -32,7 +33,6 @@ void Uart1_Putchar(uint8_t Ch)
 
 void Uart1_SendNByte(uint8_t* Data,uint8_t Len)
 {
-  GPIO_WriteReverse(LED_GPIO_PORT,LED_GPIO_PIN);
   while(Len--)Uart1_Putchar(*Data++);
 }
 
@@ -40,8 +40,7 @@ void main(void)
 {
   CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
 
-  GPIO_Init(LED_GPIO_PORT,LED_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
-
+  // TimeOut Timer
   TIM2_TimeBaseInit(TIM2_PRESCALER_128,0xffff);
   TIM2_ITConfig(TIM1_IT_UPDATE,ENABLE);
 
@@ -49,6 +48,12 @@ void main(void)
   UART1_ITConfig(UART1_IT_RXNE_OR,ENABLE);
 
   mb_set_tx_handler(&Uart1_SendNByte);
+
+  mb_slave_address_set(0x01);
+
+  // Test Data
+  mb_table_write(TBALE_Input_Registers,0,123);
+	mb_table_write(TABLE_Holding_Registers,0,456);
 
   enableInterrupts();
 
