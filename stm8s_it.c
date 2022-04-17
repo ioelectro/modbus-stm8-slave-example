@@ -269,7 +269,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   */
  INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 {
-  Tim2OVFI();
+  TimOutTimer_OVF();
 }
 
 /**
@@ -331,12 +331,12 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   * @param  None
   * @retval None
   */
- INTERRUPT_HANDLER(UART1_RX_IRQHandler, 18)
+ @svlreg INTERRUPT_HANDLER(UART1_RX_IRQHandler, 18)
 {
   /* In order to detect unexpected events during development,
      it is recommended to set a breakpoint on the following instruction.
   */
- Uart1RXNEI();
+ Uart1_RXIntrrupt();
 }
 #endif /*STM8S105 || STM8S001 */
 

@@ -14,7 +14,8 @@
 #define LED_GPIO_PIN   GPIO_PIN_3
 
 /* Public function prototypes -----------------------------------------------*/
-void Tim2OVFI(void);
-void Uart1RXNEI(void);
+void TimOutTimer_OVF(void);
+void Uart1_RXIntrrupt(void);
+void TimeOutTimer_Reset(void);
 
 #endif

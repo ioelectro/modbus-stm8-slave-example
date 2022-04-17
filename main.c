@@ -1,21 +1,27 @@
-#include <stm8s.h>
-#include <stm8s_conf.h>
+#include "stm8s.h"
+#include "stm8s_conf.h"
 #include "main.h"
 #include "mb.h"
-#include "mb-link.h"
 
-void delay(uint32_t);
-
-void Tim2OVFI()
+void TimOutTimer_OVF()
 {
-  GPIO_WriteReverse(LED_GPIO_PORT,LED_GPIO_PIN);
+  mb_rx_timeout_handler();
   TIM2_ClearFlag(TIM2_FLAG_UPDATE);
+  TIM2_Cmd(DISABLE);
 }
 
-void Uart1RXNEI()
+void TimeOutTimer_Reset()
 {
-  uint8_t B;
-  B=UART1_ReceiveData8();
+  TIM2_SetCounter(0);
+  TIM2_Cmd(ENABLE);
+  TIM2_ClearFlag(TIM2_FLAG_UPDATE);
+  TIM2_ClearITPendingBit(TIM2_IT_UPDATE);
+}
+
+void Uart1_RXIntrrupt()
+{
+  mb_rx_new_data(UART1_ReceiveData8());
+  TimeOutTimer_Reset();
 }
 
 void Uart1_Putchar(uint8_t Ch)
@@ -26,6 +32,7 @@ void Uart1_Putchar(uint8_t Ch)
 
 void Uart1_SendNByte(uint8_t* Data,uint8_t Len)
 {
+  GPIO_WriteReverse(LED_GPIO_PORT,LED_GPIO_PIN);
   while(Len--)Uart1_Putchar(*Data++);
 }
 
@@ -37,29 +44,19 @@ void main(void)
 
   TIM2_TimeBaseInit(TIM2_PRESCALER_128,0xffff);
   TIM2_ITConfig(TIM1_IT_UPDATE,ENABLE);
-  TIM2_Cmd(ENABLE);
 
   UART1_Init(9600,UART1_WORDLENGTH_8D,UART1_STOPBITS_1,UART1_PARITY_NO,UART1_SYNCMODE_CLOCK_DISABLE,UART1_MODE_TXRX_ENABLE);
   UART1_ITConfig(UART1_IT_RXNE_OR,ENABLE);
+
+  mb_set_tx_handler(&Uart1_SendNByte);
 
   enableInterrupts();
 
   while(1)
   {
-    Uart1_SendNByte((uint8_t*)"Hello!\r\n",8);
-    mb_link_check_new_data('A');
-    delay(1000);
   }
 }
 
-void delay(uint32_t time)
-{
-  int i;
-  while (time--)
-  {
-    for(i=0;i<0xfff;i++)nop();
-  }
-}
 
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t* file, uint32_t line)

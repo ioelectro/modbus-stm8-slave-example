@@ -1,4 +1,7 @@
 .vscode
-RIDE
-STVD
-EWSTM8
+Raisonance
+Debug
+Release
+*.wed
+*.dep
+
